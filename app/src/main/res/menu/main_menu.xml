@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/itmNews"
+        android:title="@string/txt_news"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/itmSearch"
+        android:title="@string/txt_search"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/itmSaved"
+        android:title="@string/txt_saved"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/itmMyAccount"
+        android:title="@string/txt_my_account"
+        app:showAsAction="never"/>
+</menu>
