@@ -22,6 +22,7 @@ import com.example.automotriz.Entity.FilterSettings
 import com.example.automotriz.databinding.ActivityListCarsBinding
 import com.example.automotriz.databinding.ActivitySavedCarsBinding
 import org.json.JSONObject
+import java.io.Console
 
 class ListCarsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityListCarsBinding
@@ -54,7 +55,7 @@ class ListCarsActivity : AppCompatActivity() {
     fun loadListCars(){
         val filterSettings = FilterSettings().getFilterSetting()
         val minCost = filterSettings.minCost?.toString() ?: ""
-        val brands = getSearchBrands(filterSettings)
+        val brands = getSearchBrandsDynamic(filterSettings)
         val fuel = getFuelTypes(filterSettings)
         val db = ClientDB(this@ListCarsActivity)
         val idClient = db.getOne()
@@ -63,7 +64,7 @@ class ListCarsActivity : AppCompatActivity() {
 
 
         val myURL = url + "?minCost=${minCost}&brands=${brands}&fuelTypes=${fuel}&idClient=${idClient}&maxCost=${maxCost}&transmission=${transmission}"
-
+        Log.d(Constants.LOG_TAG, "Busca " + myURL)
         val list = arrayListOf<EntityCar>()
         val stringRequest = StringRequest(Request.Method.GET, myURL,
                 Response.Listener<String> { response ->
@@ -104,64 +105,22 @@ class ListCarsActivity : AppCompatActivity() {
         queue.add(stringRequest)
     }
 
-    fun getSearchBrands(filterSettings: EntityFilter): String{
-        var brands = ""
-        var count = 0;
-        if(filterSettings.brand?.size ?: 0 > 0){
-            if(filterSettings.brand?.contains(getString(R.string.txt_sentra)) ?: false){
-                brands = brands + "1:1"
-                count = 1;
-            }
-            if(filterSettings.brand?.contains(getString(R.string.txt_versa)) ?: false){
-                if(count > 0){
-                    brands = brands + ","
-                }
-                brands = brands + "2:1"
-                count = 1;
-            }
-            if(filterSettings.brand?.contains(getString(R.string.txt_tsuru)) ?: false){
-                if(count > 0){
-                    brands = brands + ","
-                }
-                brands = brands + "3:1"
-                count = 1;
-            }
-            if(filterSettings.brand?.contains(getString(R.string.txt_march)) ?: false){
-                if(count > 0){
-                    brands = brands + ","
-                }
-                brands = brands + "4:1"
-                count = 1;
-            }
-            if(filterSettings.brand?.contains(getString(R.string.txt_tida)) ?: false){
-                if(count > 0){
-                    brands = brands + ","
-                }
-                brands = brands + "5:1"
-                count = 1;
-            }
-        }else{
-            brands = ""
-        }
-        return  brands
-    }
-
     fun getFuelTypes(filterSettings: EntityFilter): String{
         var fuel = ""
         var count = 0;
-        if(filterSettings.fuelType?.size ?: 0 > 0){
-            if(filterSettings.fuelType?.contains(getString(R.string.txt_gasoline)) ?: false){
+        if(filterSettings.fuelType.size> 0){
+            if(filterSettings.fuelType.contains(getString(R.string.txt_gasoline)) ?: false){
                 fuel = fuel + "1:1"
                 count = 1;
             }
-            if(filterSettings.fuelType?.contains(getString(R.string.txt_electric)) ?: false){
+            if(filterSettings.fuelType.contains(getString(R.string.txt_electric)) ?: false){
                 if(count > 0){
                     fuel = fuel + ","
                 }
                 fuel = fuel + "2:1"
                 count = 1;
             }
-            if(filterSettings.fuelType?.contains(getString(R.string.txt_diesel)) ?: false){
+            if(filterSettings.fuelType.contains(getString(R.string.txt_diesel)) ?: false){
                 if(count > 0){
                     fuel = fuel + ","
                 }
@@ -178,12 +137,12 @@ class ListCarsActivity : AppCompatActivity() {
     fun getTransmission(filterSettings: EntityFilter): String{
         var fuel = ""
         var count = 0;
-        if(filterSettings.transmission?.size ?: 0 > 0){
-            if(filterSettings.transmission?.contains(getString(R.string.txt_manual)) ?: false){
+        if(filterSettings.transmission.size> 0){
+            if(filterSettings.transmission.contains(getString(R.string.txt_manual)) ?: false){
                 fuel = fuel + "1:1"
                 count = 1;
             }
-            if(filterSettings.transmission?.contains(getString(R.string.txt_automatic)) ?: false){
+            if(filterSettings.transmission.contains(getString(R.string.txt_automatic)) ?: false){
                 if(count > 0){
                     fuel = fuel + ","
                 }
@@ -194,5 +153,18 @@ class ListCarsActivity : AppCompatActivity() {
             fuel = ""
         }
         return  fuel
+    }
+
+    fun getSearchBrandsDynamic(filterSettings: EntityFilter): String{
+        Log.d(Constants.LOG_TAG,filterSettings.brandsSearch.toString())
+        var brandsSearch = ""
+        for((index, brand) in filterSettings.brandsSearch.withIndex()){
+            if(index > 0){
+                brandsSearch = brandsSearch + ",${brand}"
+            }else{
+                brandsSearch = brandsSearch + brand
+            }
+        }
+        return  brandsSearch
     }
 }

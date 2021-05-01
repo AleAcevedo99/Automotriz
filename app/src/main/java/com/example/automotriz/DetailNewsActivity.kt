@@ -51,7 +51,10 @@ class DetailNewsActivity : AppCompatActivity() {
                         binding.txtTitle.setText(news.title)
                         binding.txtDate.setText(news.date)
                         binding.txtContent.setText(news.content)
-                        Picasso.get().load(news.imageUrl).into(binding.imgNews)
+                        Picasso.get().load(news.imageUrl).fit()
+                                .placeholder(R.drawable.imgplaceholder)
+                                .error(R.drawable.imgplaceholder)
+                                .into(binding.imgNews)
 
                     }else{
                         Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()

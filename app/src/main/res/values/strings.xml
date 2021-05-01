@@ -45,7 +45,7 @@
     <string name="txt_electric">Eléctrico</string>
     <string name="txt_ok">OK</string>
     <string name="txt_user_contact_required">Llena tus datos de contacto en Mi Cuenta para realizar esta acción</string>
-    <string name="txt_you_need_internet">Sin conexión. Necesitas acceso a internet par acceder a la aplicación</string>
+    <string name="txt_you_need_internet">Sin conexión. Necesitas acceso a internet para acceder a la aplicación</string>
     <string name="txt_no_coincidences">No hay coincidencias</string>
     <string name="txt_need_registered">Necesitas tener una cuenta para realizar esta acción. Accede a \"Mi Cuenta\" para configurarla.</string>
     <string name="txt_transaction_error">Error al actualizar</string>

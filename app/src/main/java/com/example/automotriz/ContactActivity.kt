@@ -23,6 +23,7 @@ import com.example.automotriz.Entity.EntityClient
 import com.example.automotriz.Entity.EntityNews
 import com.example.automotriz.databinding.ActivityContactBinding
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
 
@@ -75,9 +76,13 @@ class ContactActivity : AppCompatActivity() {
                             car.brand = "${array.getJSONObject(0).getString("brandName")} ${array.getJSONObject(0).getString("name")}"
                             car.year = array.getJSONObject(0).getInt("year")
                             car.image = array.getJSONObject(0).getString("imageURL")
+                            Picasso.get().load(car.image).fit()
+                                    .placeholder(R.drawable.imgplaceholder)
+                                    .error(R.drawable.imgplaceholder)
+                                    .into(binding.imgCar)
                             supportActionBar?.setTitle(car.brand + ' ' + car.year)
 
-                            //binding.imgNews
+
                             binding.txtIntrested.setText("${getString(R.string.txt_interested)}  ${car.brand} ${car.year} $${car.cost}")
 
                         }else{

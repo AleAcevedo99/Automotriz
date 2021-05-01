@@ -13,32 +13,45 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.automotriz.databinding.ActivityFilterBinding
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.example.automotriz.Adapters.BrandsAdapter
+import com.example.automotriz.Adapters.NewsAdapter
 import com.example.automotriz.Constants.Constants
+import com.example.automotriz.Entity.EntityBrands
 import com.example.automotriz.Entity.EntityFilter
+import com.example.automotriz.Entity.EntityNews
 import com.example.automotriz.Entity.FilterSettings
+import org.json.JSONObject
 
 
 class FilterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFilterBinding
+    private lateinit var queue: RequestQueue
+    private val url= Constants.URL_API + "Brands"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityFilterBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        queue = Volley.newRequestQueue(this)
 
         val hasFilter = intent.getIntExtra(Constants.FILTER_SETTINGS, -1)
 
+        loadBrands(hasFilter)
+
         if(hasFilter == 1){
             val filterSettings = FilterSettings().getFilterSetting()
-            binding.chkSentra.isChecked = filterSettings.brand?.contains(binding.chkSentra.text) ?: false
-            binding.chkVersa.isChecked = filterSettings.brand?.contains(binding.chkVersa.text) ?: false
-            binding.chkTsuru.isChecked = filterSettings.brand?.contains(binding.chkTsuru.text) ?: false
-            binding.chkTida.isChecked = filterSettings.brand?.contains(binding.chkTida.text) ?: false
-            binding.chkMarch.isChecked = filterSettings.brand?.contains(binding.chkMarch.text) ?: false
-            binding.chkAutomatic.isChecked = filterSettings.transmission?.contains(binding.chkAutomatic.text) ?: false
-            binding.chkManual.isChecked = filterSettings.transmission?.contains(binding.chkManual.text) ?: false
-            binding.chkGasoline.isChecked = filterSettings.fuelType?.contains(binding.chkGasoline.text) ?: false
-            binding.chkElectric.isChecked = filterSettings.fuelType?.contains(binding.chkElectric.text) ?: false
-            binding.chkDiesel.isChecked = filterSettings.fuelType?.contains(binding.chkDiesel.text) ?: false
+            binding.chkAutomatic.isChecked = filterSettings.transmission.contains(binding.chkAutomatic.text)
+            binding.chkManual.isChecked = filterSettings.transmission.contains(binding.chkManual.text)
+            binding.chkGasoline.isChecked = filterSettings.fuelType.contains(binding.chkGasoline.text)
+            binding.chkElectric.isChecked = filterSettings.fuelType.contains(binding.chkElectric.text)
+            binding.chkDiesel.isChecked = filterSettings.fuelType.contains(binding.chkDiesel.text)
             binding.edtMinCost.setText(filterSettings.minCost?.toString() ?: "")
             binding.edtMaxCost.setText(filterSettings.maxCost?.toString() ?: "")
         }
@@ -52,11 +65,6 @@ class FilterActivity : AppCompatActivity() {
         }
 
         binding.btnCleanFilter.setOnClickListener {
-            binding.chkSentra.isChecked = false
-            binding.chkVersa.isChecked = false
-            binding.chkTsuru.isChecked = false
-            binding.chkTida.isChecked = false
-            binding.chkMarch.isChecked = false
             binding.chkAutomatic.isChecked = false
             binding.chkManual.isChecked = false
             binding.chkGasoline.isChecked = false
@@ -67,6 +75,7 @@ class FilterActivity : AppCompatActivity() {
             val filters = EntityFilter()
             val filterSettings = FilterSettings()
             filterSettings.setFilterSettings(filters)
+            loadBrands(0)
         }
 
    }
@@ -75,23 +84,6 @@ class FilterActivity : AppCompatActivity() {
         val brands = arrayListOf<String>()
         val fuelTypes = arrayListOf<String>()
         val transmission = arrayListOf<String>()
-
-        if(binding.chkSentra.isChecked){
-            brands.add("${binding.chkSentra.text}")
-
-        }
-        if(binding.chkTsuru.isChecked){
-            brands.add("${binding.chkTsuru.text}")
-        }
-        if(binding.chkVersa.isChecked){
-            brands.add("${binding.chkVersa.text}")
-        }
-        if(binding.chkTida.isChecked){
-            brands.add("${binding.chkTida.text}")
-        }
-        if(binding.chkMarch.isChecked){
-            brands.add("${binding.chkMarch.text}")
-        }
         if(binding.chkManual.isChecked){
             transmission.add("${binding.chkManual.text}")
         }
@@ -108,13 +100,14 @@ class FilterActivity : AppCompatActivity() {
             fuelTypes.add("${binding.chkElectric.text}")
         }
 
-        filterSettings.brand = brands
+        //filterSettings.brand = brands
+        filterSettings.brand = filterSettings.brand
         filterSettings.fuelType = fuelTypes
         filterSettings.transmission = transmission
         if(binding.edtMinCost.text.isNotEmpty()){
             filterSettings.minCost = binding.edtMinCost.text.toString().toDouble()
         }
-        if(binding.edtMaxCost.text.isNotEmpty()){
+         if(binding.edtMaxCost.text.isNotEmpty()){
             filterSettings.maxCost = binding.edtMaxCost.text.toString().toDouble()
         }
         return filterSettings
@@ -145,5 +138,36 @@ class FilterActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun loadBrands(hasFilter: Int) {
+        val list = arrayListOf<EntityBrands>()
+        val stringRequest = StringRequest(Request.Method.GET, url,
+                Response.Listener<String> { response ->
+                    val jsonObject = JSONObject(response)
+                    if(jsonObject["code"] == 1) {
+                        val array = jsonObject.getJSONArray("valuesBrands")
+                        for(i in 0 until array.length()){
+                            val brand = EntityBrands();
+                            brand.id = array.getJSONObject(i).getLong("id")
+                            brand.brandName = array.getJSONObject(i).getString("brandName")
+                            list.add(brand)
+                        }
+                        val adapter = BrandsAdapter(list, this@FilterActivity, hasFilter)
+                        val linearLayout = LinearLayoutManager(
+                                this@FilterActivity, LinearLayoutManager.VERTICAL,
+                                false
+                        )
+                        binding.rwsBrands.layoutManager = linearLayout
+                        binding.rwsBrands.adapter = adapter
+                    }
+
+
+                },
+                Response.ErrorListener { error ->
+                    Toast.makeText(this, com.example.automotriz.R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
+                })
+        queue.add(stringRequest)
+
     }
 }
