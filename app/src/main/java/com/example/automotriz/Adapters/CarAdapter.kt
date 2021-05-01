@@ -23,6 +23,7 @@ import com.example.automotriz.Entity.EntityCar
 import com.example.automotriz.Entity.EntityNews
 import com.example.automotriz.R
 import com.example.automotriz.databinding.ItemCarBinding
+import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
 class CarAdapter(var carsList:ArrayList<EntityCar>, val context: Context, val type:Int): RecyclerView.Adapter<CarHolder>() {
@@ -37,7 +38,10 @@ class CarAdapter(var carsList:ArrayList<EntityCar>, val context: Context, val ty
 
     override fun onBindViewHolder(holder: CarHolder, position: Int) {
 
-        //holder.image
+        Picasso.get().load(carsList[position].image).fit()
+                .placeholder(R.drawable.imgplaceholder)
+                .error(R.drawable.imgplaceholder)
+                .into(holder.imgCar)
         holder.txtBrand.text = "${carsList[position].brand}"
         holder.txtYear.text = "${carsList[position].year}"
         holder.txtTransmission.text = "${carsList[position].transmission}"
@@ -61,7 +65,8 @@ class CarAdapter(var carsList:ArrayList<EntityCar>, val context: Context, val ty
             val idClient = db.getOne()
             if(idClient > 0){
                 if(carsList[position].isFavorite){
-                    val stringRequest = StringRequest(Request.Method.DELETE, Constants.URL_API + "SavedCars/" + idClient + "/" + carsList[position].id,
+                    Log.d(Constants.LOG_TAG, Constants.URL_API + "SavedCars/" + carsList[position].idSaved)
+                    val stringRequest = StringRequest(Request.Method.DELETE, Constants.URL_API + "SavedCars/" + carsList[position].idSaved,
                             Response.Listener<String> { response ->
                                 val jsonObject = JSONObject(response)
                                 if(jsonObject["code"].toString().toInt() >= 1){
@@ -78,6 +83,7 @@ class CarAdapter(var carsList:ArrayList<EntityCar>, val context: Context, val ty
                             },
                             Response.ErrorListener { error ->
                                   Toast.makeText(context, R.string.txt_transaction_error, Toast.LENGTH_SHORT).show()
+                                  notifyDataSetChanged()
                             })
                     queue.add(stringRequest)
                 }else{
@@ -88,14 +94,17 @@ class CarAdapter(var carsList:ArrayList<EntityCar>, val context: Context, val ty
                             Response.Listener { response ->
                                 if(response["code"].toString().toInt() >= 1){
                                     carsList[position].isFavorite = !carsList[position].isFavorite
+                                    carsList[position].idSaved = response["code"].toString().toInt()
                                     notifyDataSetChanged()
                                 }else{
                                     Toast.makeText(context, R.string.txt_transaction_error, Toast.LENGTH_SHORT).show()
+                                    notifyDataSetChanged()
                                 }
 
                             },
                             Response.ErrorListener { error ->
                                 Toast.makeText(context, R.string.txt_transaction_error, Toast.LENGTH_SHORT).show()
+                                notifyDataSetChanged()
                             })
                     queue.add(jsonObjectRequest)
                 }

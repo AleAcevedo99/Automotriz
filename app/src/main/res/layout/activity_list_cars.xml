@@ -14,14 +14,16 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rwsCars"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/flbtnFilter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="600dp"
-            android:layout_marginEnd="50dp"
+            android:layout_marginTop="390dp"
+            android:layout_marginEnd="70dp"
             android:clickable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

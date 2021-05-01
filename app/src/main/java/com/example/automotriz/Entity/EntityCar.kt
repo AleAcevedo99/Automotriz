@@ -11,6 +11,7 @@ data class EntityCar(
     var fuelType:String,
     var horesepower:Int,
     var cost: Double,
-    var isFavorite: Boolean){
-    constructor():this(0,"", 0, "", "", "", "", "", 0, 0.0, false)
+    var isFavorite: Boolean,
+    var idSaved: Int){
+    constructor():this(0,"", 0, "", "", "", "", "", 0, 0.0, false, 0)
 }

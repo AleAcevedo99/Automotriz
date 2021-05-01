@@ -23,6 +23,7 @@ import com.example.automotriz.Entity.EntityNews
 import com.example.automotriz.databinding.ActivityDetailCarBinding
 import com.example.automotriz.databinding.ActivityDetailNewsBinding
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
 class DetailCarActivity : AppCompatActivity() {
@@ -55,9 +56,10 @@ class DetailCarActivity : AppCompatActivity() {
                             car.traction = array.getJSONObject(0).getString("traction")
                             car.transmission = array.getJSONObject(0).getString("transmissionTypeText")
                             car.motor = array.getJSONObject(0).getString("motor")
+                            car.idSaved = array.getJSONObject(0).getInt("isFavorite")
                             car.isFavorite = when(array.getJSONObject(0).getInt("isFavorite")){
-                                1 -> true
-                                else -> false
+                                0 -> false
+                                else -> true
                             }
                             car.image = array.getJSONObject(0).getString("imageURL")
                             car.fuelType = array.getJSONObject(0).getString("fuelTypeText")
@@ -76,7 +78,7 @@ class DetailCarActivity : AppCompatActivity() {
                             }else{
                                 binding.btnSave.setImageResource(R.drawable.ic_favorite_border_black_24dp)
                             }
-                            //binding.imgNews
+                            Picasso.get().load(car.image).fit().into(binding.imgCar)
                         }else{
                             Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
                         }
@@ -103,7 +105,7 @@ class DetailCarActivity : AppCompatActivity() {
             binding.btnSave.setOnClickListener {
                 if(idClient > 0){
                     if(car.isFavorite){
-                        val stringRequest = StringRequest(Request.Method.DELETE, Constants.URL_API + "SavedCars/" + idClient + "/" + car.id,
+                        val stringRequest = StringRequest(Request.Method.DELETE, Constants.URL_API + "SavedCars/" + car.idSaved,
                                 Response.Listener<String> { response ->
                                     val jsonObject = JSONObject(response)
                                     if(jsonObject["code"].toString().toInt() >= 1){
@@ -131,6 +133,7 @@ class DetailCarActivity : AppCompatActivity() {
                                 Response.Listener { response ->
                                     if(response["code"].toString().toInt() >= 1){
                                         car.isFavorite = !car.isFavorite
+                                        car.idSaved = response["code"].toString().toInt()
                                         if(car.isFavorite){
                                             binding.btnSave.setImageResource(R.drawable.ic_favorite_black_24dp)
                                         }else{

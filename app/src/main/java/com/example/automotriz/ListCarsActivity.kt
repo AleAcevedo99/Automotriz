@@ -35,6 +35,23 @@ class ListCarsActivity : AppCompatActivity() {
         supportActionBar?.setTitle(R.string.txt_cars)
         queue = Volley.newRequestQueue(this)
 
+        loadListCars()
+
+
+        binding.flbtnFilter.setOnClickListener {
+            val intent = Intent(this@ListCarsActivity, FilterActivity::class.java).apply{
+                putExtra(Constants.FILTER_SETTINGS, 1)
+            }
+            startActivity(intent)
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        loadListCars()
+    }
+
+    fun loadListCars(){
         val filterSettings = FilterSettings().getFilterSetting()
         val minCost = filterSettings.minCost?.toString() ?: ""
         val brands = getSearchBrands(filterSettings)
@@ -59,39 +76,32 @@ class ListCarsActivity : AppCompatActivity() {
                             myCar.brand = "${array.getJSONObject(i).getString("brandName")} ${array.getJSONObject(i).getString("name")}"
                             myCar.year = array.getJSONObject(i).getInt("year")
                             myCar.transmission = array.getJSONObject(i).getString("transmissionTypeText")
+                            myCar.idSaved = array.getJSONObject(0).getInt("isFavorite")
                             myCar.isFavorite = when(array.getJSONObject(i).getInt("isFavorite")){
-                                1 -> true
-                                else -> false
+                                0 -> false
+                                else -> true
                             }
                             myCar.image = array.getJSONObject(i).getString("imageURL")
                             myCar.cost = array.getJSONObject(i).getDouble("cost")
                             list.add(myCar)
                         }
-                        val adapter = CarAdapter(list, this@ListCarsActivity, 0)
-                        val linearLayout = LinearLayoutManager(
-                                this@ListCarsActivity, LinearLayoutManager.VERTICAL,
-                                false
-                        )
-                        binding.rwsCars.layoutManager = linearLayout
-                        binding.rwsCars.adapter = adapter
                     }
                     else{
                         Toast.makeText(this, R.string.txt_no_coincidences, Toast.LENGTH_LONG).show()
                     }
+                    val adapter = CarAdapter(list, this@ListCarsActivity, 0)
+                    val linearLayout = LinearLayoutManager(
+                            this@ListCarsActivity, LinearLayoutManager.VERTICAL,
+                            false
+                    )
+                    binding.rwsCars.layoutManager = linearLayout
+                    binding.rwsCars.adapter = adapter
 
                 },
                 Response.ErrorListener { error ->
                     Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
                 })
         queue.add(stringRequest)
-
-
-        binding.flbtnFilter.setOnClickListener {
-            val intent = Intent(this@ListCarsActivity, FilterActivity::class.java).apply{
-                putExtra(Constants.FILTER_SETTINGS, 1)
-            }
-            startActivity(intent)
-        }
     }
 
     fun getSearchBrands(filterSettings: EntityFilter): String{

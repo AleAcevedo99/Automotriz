@@ -28,7 +28,10 @@ class NewsAdapter(var newsList:ArrayList<EntityNews>, val context: Context): Rec
 
         holder.txtTitle.text = "${newsList[position].title}"
         holder.txtDate.text = "${newsList[position].date}"
-        Picasso.get().load(newsList[position].imageUrl).into(holder.imgNews)
+        Picasso.get().load(newsList[position].imageUrl)
+                .placeholder(R.drawable.imgplaceholder)
+                .error(R.drawable.imgplaceholder)
+                .into(holder.imgNews)
         holder.itemView.setOnClickListener {
             val intent = Intent(context, DetailNewsActivity::class.java).apply{
                 putExtra(Constants.ID_NEW, newsList[position].id)

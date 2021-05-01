@@ -33,6 +33,17 @@ class SavedCarsActivity : AppCompatActivity() {
         setContentView(binding.root)
         supportActionBar?.setTitle(R.string.txt_saved_cars)
         queue = Volley.newRequestQueue(this)
+
+        loadSavedCars()
+
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        loadSavedCars()
+    }
+
+    fun loadSavedCars(){
         val db = ClientDB(this)
         val idClient = db.getOne()
         val list = arrayListOf<EntityCar>()
@@ -47,77 +58,26 @@ class SavedCarsActivity : AppCompatActivity() {
                             myCar.brand = "${array.getJSONObject(i).getString("brandName")} ${array.getJSONObject(i).getString("name")}"
                             myCar.year = array.getJSONObject(i).getInt("year")
                             myCar.transmission = array.getJSONObject(i).getString("transmissionTypeText")
+                            myCar.idSaved = array.getJSONObject(i).getInt("isFavorite")
                             myCar.isFavorite = when(array.getJSONObject(i).getInt("isFavorite")){
-                                1 -> true
-                                else -> false
+                                0 -> false
+                                else -> true
                             }
                             myCar.image = array.getJSONObject(i).getString("imageURL")
                             myCar.cost = array.getJSONObject(i).getDouble("cost")
                             list.add(myCar)
                         }
-                        val adapter = CarAdapter(list, this@SavedCarsActivity, 1)
-                        val linearLayout = LinearLayoutManager(
-                                this@SavedCarsActivity, LinearLayoutManager.VERTICAL,
-                                false
-                        )
-                        binding.rwsCars.layoutManager = linearLayout
-                        binding.rwsCars.adapter = adapter
                     }
                     else{
                         Toast.makeText(this, R.string.txt_no_cars_saved, Toast.LENGTH_LONG).show()
                     }
-
-                },
-                Response.ErrorListener { error ->
-                    Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
-                })
-        queue.add(stringRequest)
-
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d(Constants.LOG_TAG, "Restart")
-        val db = ClientDB(this)
-        val idClient = db.getOne()
-        val list = arrayListOf<EntityCar>()
-        val stringRequest = StringRequest(Request.Method.GET, url + "/" + idClient,
-                Response.Listener<String> { response ->
-                    val jsonObject = JSONObject(response)
-                    if(jsonObject["code"] == 1){
-                        val array = jsonObject.getJSONArray("valuesCars")
-                        for(i in 0 until array.length()){
-                            val myCar = EntityCar()
-                            myCar.id = array.getJSONObject(i).getLong("id")
-                            myCar.brand = "${array.getJSONObject(i).getString("brandName")} ${array.getJSONObject(i).getString("name")}"
-                            myCar.year = array.getJSONObject(i).getInt("year")
-                            myCar.transmission = array.getJSONObject(i).getString("transmissionTypeText")
-                            myCar.isFavorite = when(array.getJSONObject(i).getInt("isFavorite")){
-                                1 -> true
-                                else -> false
-                            }
-                            myCar.image = array.getJSONObject(i).getString("imageURL")
-                            myCar.cost = array.getJSONObject(i).getDouble("cost")
-                            list.add(myCar)
-                        }
-                        val adapter = CarAdapter(list, this@SavedCarsActivity, 1)
-                        val linearLayout = LinearLayoutManager(
-                                this@SavedCarsActivity, LinearLayoutManager.VERTICAL,
-                                false
-                        )
-                        binding.rwsCars.layoutManager = linearLayout
-                        binding.rwsCars.adapter = adapter
-                    }
-                    else{
-                        val adapter = CarAdapter(list, this@SavedCarsActivity, 1)
-                        val linearLayout = LinearLayoutManager(
-                                this@SavedCarsActivity, LinearLayoutManager.VERTICAL,
-                                false
-                        )
-                        binding.rwsCars.layoutManager = linearLayout
-                        binding.rwsCars.adapter = adapter
-                        Toast.makeText(this, R.string.txt_no_cars_saved, Toast.LENGTH_LONG).show()
-                    }
+                    val adapter = CarAdapter(list, this@SavedCarsActivity, 1)
+                    val linearLayout = LinearLayoutManager(
+                            this@SavedCarsActivity, LinearLayoutManager.VERTICAL,
+                            false
+                    )
+                    binding.rwsCars.layoutManager = linearLayout
+                    binding.rwsCars.adapter = adapter
 
                 },
                 Response.ErrorListener { error ->
