@@ -15,6 +15,7 @@ import com.example.automotriz.Constants.Constants
 import com.example.automotriz.Entity.EntityNews
 import com.example.automotriz.databinding.ActivityDetailNewsBinding
 import com.example.automotriz.databinding.ActivityNewsBinding
+import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
 class DetailNewsActivity : AppCompatActivity() {
@@ -50,7 +51,8 @@ class DetailNewsActivity : AppCompatActivity() {
                         binding.txtTitle.setText(news.title)
                         binding.txtDate.setText(news.date)
                         binding.txtContent.setText(news.content)
-                        //binding.imgNews
+                        Picasso.get().load(news.imageUrl).into(binding.imgNews)
+
                     }else{
                         Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
                         finish()
