@@ -68,8 +68,6 @@ class NewsActivity : AppCompatActivity() {
                         binding.rwsNews.layoutManager = linearLayout
                         binding.rwsNews.adapter = adapter
                     }
-
-
                 },
                 Response.ErrorListener { error ->
                     Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()

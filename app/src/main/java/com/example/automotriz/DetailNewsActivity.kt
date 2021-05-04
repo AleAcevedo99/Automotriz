@@ -55,12 +55,10 @@ class DetailNewsActivity : AppCompatActivity() {
                                 .placeholder(R.drawable.imgplaceholder)
                                 .error(R.drawable.imgplaceholder)
                                 .into(binding.imgNews)
-
                     }else{
                         Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
                         finish()
                     }
-
                 },
                 Response.ErrorListener { error ->
                     Toast.makeText(this, R.string.txt_load_activity_error, Toast.LENGTH_SHORT).show()
